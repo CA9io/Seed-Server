@@ -6,10 +6,11 @@ npm install -g pm2 typescript
 tsc
 cp config.json ./dist/config/config.json
 
+
 if [[ "$OSTYPE" == "cygwin"* ]]; then
-    node ./dist/index.js
+    DEFAULT_PATH="$1" node ./dist/index.js
 elif [[ "$OSTYPE" == "msys"* ]]; then
-    node ./dist/index.js
+    DEFAULT_PATH="$1" node ./dist/index.js
 else
-    pm2 start ./dist/index.js
+    DEFAULT_PATH="$1" pm2 start ./dist/index.js
 fi

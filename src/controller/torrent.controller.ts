@@ -55,6 +55,7 @@ export default class TorrentController {
     this.announces = this.client.config().TORRENT_ANNOUNCES;
     console.log();
     this.save_path = path.normalize(this.client.config().DEFAULT_PATH);
+    this.client.log.log("Torrent", `save directory: ${this.save_path}`)
     this.speed(0);
   }
 
@@ -182,9 +183,9 @@ export default class TorrentController {
     });
     torrent.on("error", (err: any) => {
       if (typeof err === "string") {
-        global.CA9Logger.log_ca9("torrent", "error: " + err);
+        this.client.log.error("Torrent", err)
       } else {
-        global.CA9Logger.log_ca9("torrent", "error: " + err.message);
+        this.client.log.error("Torrent", err.message)
       }
     });
 

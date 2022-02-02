@@ -41,6 +41,7 @@ export default class APIController {
           this.options.body = JSON.stringify(body);
         }
 
+        //@ts-ignore TODO: when using the api, check if the error has been solved. I did not experience it the first few times, but suddenly get a property does not exist ts error
         const { success, message } = await got
           .post(request_path, {
             ...this.options,
@@ -51,6 +52,7 @@ export default class APIController {
         return { success: success, data: message };
       }
 
+      //@ts-ignore TODO: when using the api, check if the error has been solved. I did not experience it the first few times, but suddenly get a property does not exist ts error
       const { success, message } = await got
         .get(request_path, {
           ...this.options,
