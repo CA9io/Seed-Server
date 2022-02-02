@@ -1,0 +1,21 @@
+{
+  "api": "",
+  "secret": "",
+  "fetch_delay_sec": 300,
+  "route": "https://api.ca9.io/",
+  "announces": ["https://torrent.ca9.io:9657/"],
+  "ice": [
+    {
+      "urls": [
+        "stun:stun.l.google.com:19302",
+        "stun:global.stun.twilio.com:3478"
+      ]
+    },
+    {
+      "urls": ["turn:turn.ca9.io:443"],
+      "username": "",
+      "credential": ""
+    }
+  ],
+  "user": ""
+}

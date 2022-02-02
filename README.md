@@ -1,2 +1,3 @@
-# ca9-seed-server
-CA9.io Portal Seed Server. Makes sure the project files are always accessable.
+# Torrent Seeder
+
+Node Application that can be installed on any server, seeding your files. That way they will be available 24/7.
