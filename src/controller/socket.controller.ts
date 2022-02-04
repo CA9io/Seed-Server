@@ -27,6 +27,7 @@ export default class SocketController {
   private client: ClientController = null;
   private socket: WebSocket = null;
   private timeout;
+  private reconnection_timeout;
   private open: boolean = false;
   private log: LogController = null;
   private back_off = 1;
@@ -38,7 +39,7 @@ export default class SocketController {
   }
 
   async init(key: string, secret: string, sub: string) {
-    this.init_socket(key, secret, sub);
+    await this.init_socket(key, secret, sub);
   }
 
   private async init_routes() {
@@ -109,8 +110,14 @@ export default class SocketController {
 
     this.socket.on("open", () => {
       this.log.log("socket connection", `connection successful`);
+      clearTimeout(this.reconnection_timeout);
       this.back_off = 1;
       this.heartbeat();
+
+      //the socket server will remove all connections after 24 hours. Clients have to reconnect
+      this.reconnection_timeout = setTimeout(() => {
+        this.socket.close();
+      }, 23 * 60 * 60 * 1000);
     });
 
     this.socket.on("ping", () => this.heartbeat());
