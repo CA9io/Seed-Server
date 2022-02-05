@@ -21,6 +21,7 @@ export default class LogController {
       ).toString()}) :: \n~~ ${content} ~~`
     );
     this.logs.set(`log#${Date.now()}`, { content, topic });
+    this.check()
   }
 
   warn(topic: string, content: string) {
@@ -30,6 +31,7 @@ export default class LogController {
       ).toString()}) :: \n~~ ${content} ~~`
     );
     this.logs.set(`warn#${Date.now()}`, { content, topic });
+    this.check()
   }
 
   error(topic: string, content: string) {
@@ -39,6 +41,7 @@ export default class LogController {
       ).toString()}) :: \n~~ ${content} ~~`
     );
     this.logs.set(`err#${Date.now()}`, { content, topic });
+    this.check()
   }
 
   time(topic: string, label: string) {
@@ -57,6 +60,7 @@ export default class LogController {
         topic,
       });
       this.timing.delete(label);
+      this.check()
     } else {
       this.timing.set(label, Date.now());
     }
@@ -101,5 +105,13 @@ export default class LogController {
     }
 
     return []
+  }
+
+  check(){
+    if(this.logs.size <= 1000){
+      return;
+    }
+    const [oldest] = this.logs.keys()
+    this.logs.delete(oldest)
   }
 }
