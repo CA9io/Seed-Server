@@ -3,7 +3,7 @@
   "secret": "",
   "fetch_delay_sec": 300,
   "route": "https://api.ca9.io/",
-  "announces": ["https://torrent.ca9.io:9657/"],
+  "announces": ["wss://torrent.ca9.io:9657"],
   "ice": [
     {
       "urls": [
