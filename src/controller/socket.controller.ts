@@ -97,7 +97,7 @@ export default class SocketController {
 
   private async init_socket(key: string, secret: string, sub: string) {
     this.socket = new WebSocket(
-      `${process.env.WEBSOCKET_ENDPOINT}/?token=${encodeURI(
+      `${this.client.config().SOCKET}/?token=${encodeURI(
         Buffer.from(
           JSON.stringify({
             sub: sub,

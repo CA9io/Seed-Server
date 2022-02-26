@@ -15,6 +15,7 @@ declare global {
     FETCH_DELAY: number;
     API_ROUTE: string;
     TORRENT_ANNOUNCES: string[];
+    SOCKET: string;
     ICE: [];
     USER: string;
   };
@@ -35,6 +36,7 @@ export default {
   FETCH_DELAY:
     config.fetch_delay_sec >= 60 ? config.fetch_delay_sec * 1000 : 60000,
   API_ROUTE: config.route,
+  SOCKET: config.websocket,
   TORRENT_ANNOUNCES: config.announces,
   ICE: config.ice,
   USER: config.user,

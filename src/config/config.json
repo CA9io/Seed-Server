@@ -4,6 +4,7 @@
   "fetch_delay_sec": 300,
   "route": "https://api.ca9.io/",
   "announces": ["wss://torrent.ca9.io:9657"],
+  "websocket": "wss://socket.ca9.io",
   "ice": [
     {
       "urls": [
