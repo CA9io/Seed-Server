@@ -172,10 +172,6 @@ export default class SocketController {
           return;
         }
 
-        console.dir(
-          this.routes.get(parsed_message.route).get(parsed_message.method)
-        );
-
         this.routes
           .get(parsed_message.route)
           .get(parsed_message.method)

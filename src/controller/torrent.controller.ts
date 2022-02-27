@@ -117,19 +117,31 @@ export default class TorrentController {
   }
 
   async seed(hash: string, jwt: string) {
-    console.log(`now trying to seed: ${hash}, jwt: ${jwt}`);
+    this.client.log.log("torrent", `now trying to seed: ${hash}`);
     if (this.torrents.has(hash)) {
       try {
+        // removed rescan. Can be very resource intensive and crash smaller seed server.
         //@ts-ignore this one is missing in the types file sadly
-        this.torrents.get(hash).torrent.rescanFiles();
-      } catch (error) {}
+        //if(typeof this.torrents.get(hash).torrent !== "undefined") this.torrents.get(hash).torrent.rescanFiles();
+      } catch (error) {
+        this.client.log.error("torrent", error);
+      }
       return;
     }
     this.torrents.set(hash, { jwt, torrent: undefined });
     let torrent: WebTorrent.Torrent;
     let torrent_path = path.normalize(
-      path.join(this.save_path, `${hash}.torrent`)
+      path.join(this.save_path,"torrents", `${hash}.torrent`)
     );
+    let save_path = path.normalize(
+      path.join(this.save_path, "torrents", hash)
+    );
+
+    try {
+      fs.mkdirSync(save_path, {recursive: true})
+    } catch (error) {
+    }
+
     if (fs.existsSync(torrent_path)) {
       try {
         torrent = this.torrent_client.add(torrent_path, {
@@ -139,9 +151,11 @@ export default class TorrentController {
               token: jwt,
             };
           },
-          path: this.save_path,
+          path: save_path,
         });
       } catch (error) {
+        console.log(error)
+        this.client.log.error("torrent", error);
         return;
       }
     } else {
@@ -153,16 +167,18 @@ export default class TorrentController {
               token: jwt,
             };
           },
-          path: this.save_path,
+          path: save_path,
         });
       } catch (error) {
+        console.log(error)
+        this.client.log.error("torrent", error);
         return;
       }
     }
 
     torrent.on("ready", () => {
       try {
-        if (fs.existsSync(torrent_path)) {
+        if (!fs.existsSync(torrent_path)) {
           fs.writeFileSync(torrent_path, torrent.torrentFile);
         }
         this.torrents.set(hash, { jwt, torrent: torrent });
@@ -182,14 +198,13 @@ export default class TorrentController {
       this.internal_stats.download.last += bytes;
     });
     torrent.on("error", (err: any) => {
-      if (typeof err === "string") {
-        this.client.log.error("Torrent", err)
-      } else {
-        this.client.log.error("Torrent", err.message)
-      }
+      console.log(err)
+      this.client.log.error("Torrent", err)
     });
 
     torrent.on("wire", (wire: any) => {
+      wire.setKeepAlive(false);
+      this.client.log.log("torrent", `user connected`);
       this.internal_stats.connected++;
     });
   }
