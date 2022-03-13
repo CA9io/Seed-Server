@@ -6,6 +6,7 @@
       "es6",
       "dom"
     ],
+    "removeComments": true,
     "sourceMap": true,
     "outDir": "dist",
     "allowJs": true,

@@ -15,32 +15,40 @@ export default class LogController {
   constructor() {}
 
   log(topic: string, content: string) {
+
+    if(typeof content !== "string") content = JSON.stringify(content)
+
     console.log(
       `[INFO][${topic.toUpperCase()}] (${new Date(
         Date.now()
       ).toString()}) :: \n~~ ${JSON.stringify(content)} ~~`
     );
-    this.logs.set(`log#${Date.now()}`, { content: JSON.stringify(content), topic });
+    this.logs.set(`log#${Date.now()}`, { content , topic });
     this.check()
   }
 
   warn(topic: string, content: string) {
+
+    if(typeof content !== "string") content = JSON.stringify(content)
+
     console.log(
       `[WARNING][${topic.toUpperCase()}] (${new Date(
         Date.now()
       ).toString()}) :: \n~~ ${JSON.stringify(content)} ~~`
     );
-    this.logs.set(`warn#${Date.now()}`, { content: JSON.stringify(content), topic });
+    this.logs.set(`warn#${Date.now()}`, { content, topic });
     this.check()
   }
 
   error(topic: string, content: string) {
+    if(typeof content !== "string") content = JSON.stringify(content)
+
     console.log(
       `[ERROR][${topic.toUpperCase()}] (${new Date(
         Date.now()
       ).toString()}) :: \n~~ ${JSON.stringify(content)} ~~`
     );
-    this.logs.set(`err#${Date.now()}`, { content: JSON.stringify(content), topic });
+    this.logs.set(`err#${Date.now()}`, { content, topic });
     this.check()
   }
 

@@ -12,6 +12,7 @@ import WebTorrent from "webtorrent";
 import wrtc from "wrtc";
 import os from "os-utils";
 import checkDiskSpace from "check-disk-space";
+import { CA9Store, ResourceManager } from "../lib/transfer.store.js";
 globalThis.WRTC = wrtc;
 
 declare global {
@@ -49,13 +50,15 @@ export default class TorrentController {
   };
 
   private speed_measurement = { upload: 0, download: 0 };
+  private resource_manager: ResourceManager;
 
   constructor(client: ClientController) {
     this.client = client;
+    this.resource_manager = new ResourceManager();
     this.announces = this.client.config().TORRENT_ANNOUNCES;
     console.log();
     this.save_path = path.normalize(this.client.config().DEFAULT_PATH);
-    this.client.log.log("Torrent", `save directory: ${this.save_path}`)
+    this.client.log.log("Torrent", `save directory: ${this.save_path}`);
     this.speed(0);
   }
 
@@ -64,6 +67,11 @@ export default class TorrentController {
       this.internal_stats.download.total - this.speed_measurement.download),
       (this.internal_stats.speeds.upload =
         this.internal_stats.upload.total - this.speed_measurement.upload);
+
+    this.client.log.log(
+      "Torrent",
+      `calculated speed: ${this.internal_stats.speeds.upload}ul, ${this.internal_stats.speeds.download}dl`
+    );
 
     this.speed_measurement.download = this.internal_stats.download.total;
     this.speed_measurement.upload = this.internal_stats.upload.total;
@@ -131,19 +139,17 @@ export default class TorrentController {
     this.torrents.set(hash, { jwt, torrent: undefined });
     let torrent: WebTorrent.Torrent;
     let torrent_path = path.normalize(
-      path.join(this.save_path,"torrents", `${hash}.torrent`)
+      path.join(this.save_path, "torrents", `${hash}.torrent`)
     );
-    let save_path = path.normalize(
-      path.join(this.save_path, "torrents", hash)
-    );
+    let save_path = path.normalize(path.join(this.save_path, "torrents", hash));
 
     try {
-      fs.mkdirSync(save_path, {recursive: true})
-    } catch (error) {
-    }
+      fs.mkdirSync(save_path, { recursive: true });
+    } catch (error) {}
 
     if (fs.existsSync(torrent_path)) {
       try {
+        //@ts-ignore resource Manager does not exist on default store opts. TODO: override type
         torrent = this.torrent_client.add(torrent_path, {
           announce: this.announces,
           getAnnounceOpts: function () {
@@ -151,15 +157,18 @@ export default class TorrentController {
               token: jwt,
             };
           },
+          store: CA9Store,
+          storeOpts: { resourceManager: this.resource_manager },
           path: save_path,
         });
       } catch (error) {
-        console.log(error)
+        console.log(error);
         this.client.log.error("torrent", error);
         return;
       }
     } else {
       try {
+        //@ts-ignore resource Manager does not exist on default store opts. TODO: override type
         torrent = this.torrent_client.add(`magnet:?xt=urn:btih:${hash}`, {
           announce: this.announces,
           getAnnounceOpts: function () {
@@ -167,10 +176,12 @@ export default class TorrentController {
               token: jwt,
             };
           },
+          store: CA9Store,
+          storeOpts: { resourceManager: this.resource_manager },
           path: save_path,
         });
       } catch (error) {
-        console.log(error)
+        console.log(error);
         this.client.log.error("torrent", error);
         return;
       }
@@ -198,8 +209,8 @@ export default class TorrentController {
       this.internal_stats.download.last += bytes;
     });
     torrent.on("error", (err: any) => {
-      console.log(err)
-      this.client.log.error("Torrent", err)
+      console.log(err);
+      this.client.log.error("Torrent", err);
     });
 
     torrent.on("wire", (wire: any) => {
